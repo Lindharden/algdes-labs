@@ -70,14 +70,13 @@ public class matching {
         }
         System.out.println("3");
 
-        match(n, men, women);
+        List<String> matches = match(n, men, women);
 
         sc.close();
     }
 
-
-
-    public static void match(int n, List<Person> men, List<Person> women) {
-        
+    public static List<String> match(int n, List<Person> men, List<Person> women) {
+        // Generate strings of pairs of type: person1name -- person2name
+        return null;
     }
 }
