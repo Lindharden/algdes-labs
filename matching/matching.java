@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 public class matching {
 
     static private class Person {
-        int id; // odd for man, even for woman
+        int id;
         String name;
         Person match;
 
@@ -26,7 +26,7 @@ public class matching {
         // skip lines until "n= "
         while (true) {
             input = sc.nextLine();
-            if (input.contains("=")) {
+            if (input.contains("=") && !input.startsWith("#")) {
                 break;
             }
         }
