@@ -55,7 +55,8 @@ public class matching {
         int[][] rankings = new int[n][n];
         int[][] manPref = new int[n][n];
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < 2 * n; i++) {
+
             String[] personPrefs = sc.nextLine().split(":");
             String[] prefList = personPrefs[1].trim().split(" ");
 
@@ -95,7 +96,7 @@ public class matching {
         while (!freeProposers.isEmpty()) {
             Person p = freeProposers.getFirst();
             Person r = rejectors.get(manPref[p.id][next[p.id]]); // find next rejector
-            next[p.id] += 1; // increment next counter
+            next[p.id] += 1; // increment next counter, so we find the next rejector in following iterations
 
             Person currentMatch = r.match;
             if (currentMatch == null) {
@@ -113,7 +114,8 @@ public class matching {
                     // proposers list
                     Person rejected = r.match;
                     r.match = p;
-                    freeProposers.addFirst(rejected);
+                    freeProposers.removeFirst(); // remove the new match from the free proposers list
+                    freeProposers.addFirst(rejected); // add the rejected person to the free proposers list
                 }
             }
         }
@@ -123,8 +125,9 @@ public class matching {
 
     public static List<String> createMatchStrings(List<Person> rejectors) {
         List<String> result = new ArrayList<>();
+        rejectors.sort((a,b)-> a.match.id - b.match.id);
         for (Person p : rejectors) {
-            String s = String.format("%1$s -- %2$s", p.name, p.match.name);
+            String s = String.format("%1$s -- %2$s", p.match.name, p.name);
             result.add(s);
         }
         return result;
