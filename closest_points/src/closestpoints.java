@@ -109,14 +109,7 @@ public class closestpoints {
         double distR = closestPairRecursive(r_x, r_y); // smallest dist in right half
         double minDist = Math.min(distQ, distR); // smallest dist in total
 
-        // Find all points on midpoint
-        List<Point> l = new ArrayList<>();
-        for (Point p : px) {
-            if (p.x == midPoint.x)
-                l.add(p);
-        }
-
-        // Find all points within minDist of the line L 
+        // Find all points within minDist of the line L sorted by y
         List<Point> sy = new ArrayList<>(); 
         for (Point p : py) {
             if (Math.abs(p.x - midPoint.x) < minDist) sy.add(p);
