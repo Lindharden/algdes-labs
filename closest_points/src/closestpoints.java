@@ -109,7 +109,7 @@ public class closestpoints {
         double distR = closestPairRecursive(r_x, r_y); // smallest dist in right half
         double minDist = Math.min(distQ, distR); // smallest dist in total
 
-        // Find all points within minDist of the line L sorted by y
+        // Find all points within minDist of the line L presorted by y
         List<Point> sy = new ArrayList<>(); 
         for (Point p : py) {
             if (Math.abs(p.x - midPoint.x) < minDist) sy.add(p);
