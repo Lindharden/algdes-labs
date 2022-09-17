@@ -1,9 +1,13 @@
 package closest_points.src;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class closestpoints {
     public static class Point {
@@ -19,23 +23,33 @@ public class closestpoints {
         }
     }
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+    public static void main(String[] args) throws FileNotFoundException {
+        File dir = new File("../data/");
+        File[] files = dir.listFiles((d, name) -> name.endsWith("-tsp.txt"));
+        Arrays.sort(files);
+        
+        for (File file : files) {
+            Scanner sc = new Scanner(file); 
+            List<Point> points = new ArrayList<>();
 
-        int n = Integer.parseInt(scanner.nextLine());
+            Pattern pattern = Pattern.compile("(\\d+)\\s+([-+]?\\d*\\.?\\d+(?:[eE][-+]?\\d+)?)\\s+([-+]?\\d*\\.?\\d+(?:[eE][-+]?\\d+)?)", Pattern.CASE_INSENSITIVE);
+            
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine(); 
+                Boolean match = pattern.matcher(line).find();
+                if (match) {
+                    String[] c = line.trim().split("(\\s)+");
+                    points.add(new Point(Integer.parseInt(c[0]), Double.parseDouble(c[1]), Double.parseDouble(c[2]))); // index, x, y
+                }
+            } 
 
-        List<Point> points = new ArrayList<>();
+            int n = points.size(); 
+            double result = closestPair(n, points);
 
-        for (int i = 0; i < n; i++) {
-            String[] c = scanner.nextLine().split(" ");
-            points.add(new Point(i, Double.parseDouble(c[0]), Double.parseDouble(c[1]))); // index, x, y
-        }
+            System.out.println("../data/" + file.getName().split("-")[0] + ".tsp: " + n + " " + result);
 
-        double result = closestPair(n, points);
-        System.out.println(result);
-        //System.out.printf("%d %d", n, closestPair(n, points));
-
-        scanner.close();
+            sc.close();
+        }        
     }
 
     public static double closestPair(int n, List<Point> points) {
@@ -102,25 +116,14 @@ public class closestpoints {
                 l.add(p);
         }
 
-        List<Point> s = new ArrayList<>(); // TODO: s is not used
-        for (Point p : px) {
-            for (Point pl : l) {
-                if (euclideanDist(p, pl) < minDist) s.add(p);
-            }
-            // if the distance between the point and the midpoint is less than minDist
-            // could potentially be closer to point in other half
-        }
-
-        // Find and save points that is within minDist of the line L 
+        // Find all points within minDist of the line L 
         List<Point> sy = new ArrayList<>(); 
         for (Point p : py) {
-            for (Point pl : l) {
-                if (euclideanDist(p, pl) < minDist) sy.add(p);
-            }
+            if (Math.abs(p.x - midPoint.x) < minDist) sy.add(p);
         }
 
         // Find distance between all point within the minDist of the mid line
-        double mergeMinDist = Double.MAX_VALUE;
+        double midDist = Double.MAX_VALUE;
         for (int i = 0; i < sy.size(); i++) {
             for (int j = i + 1; j < sy.size(); j++) {
                 if (j == 15) // at most 15
@@ -128,15 +131,15 @@ public class closestpoints {
 
                 double dist = euclideanDist(sy.get(i), sy.get(j));
 
-                // we save the smallest distance we find
-                if (dist < mergeMinDist) {
-                    mergeMinDist = dist;
+                // we save the distance if it's smaller than the shortest distance found in Q or R.
+                if (dist < minDist) {
+                    midDist = dist;
                 }
             }
         }
 
         // Returns shortest distance
-        return mergeMinDist < minDist ? mergeMinDist : minDist;
+        return midDist < minDist ? midDist : minDist;
     }
 
     /**
