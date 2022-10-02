@@ -80,85 +80,39 @@ public class SequenceAlignment {
                 String yj = value2.charAt(j - 1) + ""; // get j'th char in second string
 
                 // Find best option. Should we accept difference in both? Introduce gab in
-                // first, or second, string and add penalty for gab?
-                M[i][j] = Math.max(getPenalty(xi, yj) + M[i - 1][j - 1],
+                // first, or second string, and add penalty for gab?
+                M[i][j] = Math.max(getPenalty(yj, xi) + M[i - 1][j - 1],
                         Math.max(DELTA + M[i - 1][j], DELTA + M[i][j - 1]));
             }
         }
 
-        int score = M[m - 1][n - 1];
+        int score = M[m][n];
         System.out.println(key1 + "--" + key2 + ": " + score);
         reconstructAnswers(value1, value2);
     }
 
-    public static void reconstructAnswers(String fstInput, String sndInput) {
+    public static void reconstructAnswers(String a, String b) {
         final int DELTA = getPenalty("A", "*"); // penalty for gap
-        int i = fstInput.length(); // keep track of position in first string (input)
-        int j = sndInput.length(); // keep track of position in second string (input)
-        int l = i + j;
-        int xpos = l; // keep track of position in first answer string (the answer we construct)
-        int ypos = l; // keep track of position in second answer string (the answer we construct)
-        char[] xans = new char[l + 1]; // first answer string
-        char[] yans = new char[l + 1]; // second answer string
+        StringBuilder aa = new StringBuilder(), bb = new StringBuilder();
 
         // go through each letter in the two input strings
-        while (!(i == 0 || j == 0)) {
+        for (int i = a.length(), j = b.length(); i > 0 && j > 0; ) {
             if (M[i - 1][j] + DELTA == M[i][j]) {
                 // if there has been introduced a gab in the second string
-                xans[xpos--] = fstInput.charAt(i - 1); // use letter from first string
-                yans[ypos--] = '-'; // add _ in second string
-                i--;
+                aa.append(a.charAt(--i)); // use letter from first string
+                bb.append("-"); // add - in the answer string
             } else if (M[i][j - 1] + DELTA == M[i][j]) {
                 // if there has been introduced a gab in the first string
-                xans[xpos--] = '-'; // add _ in the answer string
-                yans[ypos--] = sndInput.charAt(j - 1); // use letter of second string
-                j--;
+                bb.append(b.charAt(--j)); // use letter of second string
+                aa.append("-"); // add - in the answer string
             } else {
                 // use the two present letters
-                xans[xpos--] = fstInput.charAt(i - 1);
-                yans[ypos--] = sndInput.charAt(j - 1);
-                i--;
-                j--;
+                aa.append(a.charAt(--i));
+                bb.append(b.charAt(--j));
             }
         }
-
-        // fill out the remainder of the first answer string
-        while (xpos > 0) {
-            if (i > 0)
-                // we have not been through all the letters in the first string
-                xans[xpos--] = fstInput.charAt(--i); // insert the corresponding letter from the first input string
-            else
-                // we have been through all the letters in the first input string
-                // insert dashes in the front of the first answer string
-                xans[xpos--] = '-';
-        }
-
-        // fill out the remainder of the first answer string
-        while (ypos > 0) {
-            if (j > 0)
-                // we have not been through all the letters in the second string
-                yans[ypos--] = sndInput.charAt(--j); // insert the corresponding letter from the second input string
-            else
-                // we have been through all the letters in the second input string
-                // insert dashes in the front of the second answer string
-                yans[ypos--] = '-';
-        }
-
-        // find the first index of the answer strings,
-        // where there is not a dash in both strings
-        int idx;
-        for (idx = 1; yans[idx] == '-' && xans[idx] == '-'; idx++);
-
-        // from the first index where there no dash in both strings, print the answer
-        // strings
-        for (int ix = idx; ix <= l; ix++) {
-            System.out.print(xans[ix]);
-        }
-        System.out.println();
-        for (int ix = idx; ix <= l; ix++) {
-            System.out.print(yans[ix]);
-        }
-        System.out.println();
+        System.out.println(aa.reverse().toString());
+        System.out.println(bb.reverse().toString());
     }
 
     public static int getPenalty(String a, String b) {
@@ -167,30 +121,30 @@ public class SequenceAlignment {
 
     public static int[][] getPenalties() {
         return new int[][] {
-                { 4, -1, -2, -2, 0, -1, -1, 0, -2, -1, -1, -1, -1, -2, -1, 1, 0, -3, -2, 0, -2, -1, 0, -4 },
-                { -1, 5, 0, -2, -3, 1, 0, -2, 0, -3, -2, 2, -1, -3, -2, -1, -1, -3, -2, -3, -1, 0, -1, -4 },
-                { -2, 0, 6, 1, -3, 0, 0, 0, 1, -3, -3, 0, -2, -3, -2, 1, 0, -4, -2, -3, 3, 0, -1, -4 },
-                { -2, -2, 1, 6, -3, 0, 2, -1, -1, -3, -4, -1, -3, -3, -1, 0, -1, -4, -3, -3, 4, 1, -1, -4 },
-                { 0, -3, -3, -3, 9, -3, -4, -3, -3, -1, -1, -3, -1, -2, -3, -1, -1, -2, -2, -1, -3, -3, -2, -4 },
-                { -1, 1, 0, 0, -3, 5, 2, -2, 0, -3, -2, 1, 0, -3, -1, 0, -1, -2, -1, -2, 0, 3, -1, -4 },
-                { -1, 0, 0, 2, -4, 2, 5, -2, 0, -3, -3, 1, -2, -3, -1, 0, -1, -3, -2, -2, 1, 4, -1, -4 },
-                { 0, -2, 0, -1, -3, -2, -2, 6, -2, -4, -4, -2, -3, -3, -2, 0, -2, -2, -3, -3, -1, -2, -1, -4 },
-                { -2, 0, 1, -1, -3, 0, 0, -2, 8, -3, -3, -1, -2, -1, -2, -1, -2, -2, 2, -3, 0, 0, -1, -4 },
-                { -1, -3, -3, -3, -1, -3, -3, -4, -3, 4, 2, -3, 1, 0, -3, -2, -1, -3, -1, 3, -3, -3, -1, -4 },
-                { -1, -2, -3, -4, -1, -2, -3, -4, -3, 2, 4, -2, 2, 0, -3, -2, -1, -2, -1, 1, -4, -3, -1, -4 },
-                { -1, 2, 0, -1, -3, 1, 1, -2, -1, -3, -2, 5, -1, -3, -1, 0, -1, -3, -2, -2, 0, 1, -1, -4 },
-                { -1, -1, -2, -3, -1, 0, -2, -3, -2, 1, 2, -1, 5, 0, -2, -1, -1, -1, -1, 1, -3, -1, -1, -4 },
-                { -2, -3, -3, -3, -2, -3, -3, -3, -1, 0, 0, -3, 0, 6, -4, -2, -2, 1, 3, -1, -3, -3, -1, -4 },
-                { -1, -2, -2, -1, -3, -1, -1, -2, -2, -3, -3, -1, -2, -4, 7, -1, -1, -4, -3, -2, -2, -1, -2, -4 },
-                { 1, -1, 1, 0, -1, 0, 0, 0, -1, -2, -2, 0, -1, -2, -1, 4, 1, -3, -2, -2, 0, 0, 0, -4 },
-                { 0, -1, 0, -1, -1, -1, -1, -2, -2, -1, -1, -1, -1, -2, -1, 1, 5, -2, -2, 0, -1, -1, 0, -4 },
-                { -3, -3, -4, -4, -2, -2, -3, -2, -2, -3, -2, -3, -1, 1, -4, -3, -2, 11, 2, -3, -4, -3, -2, -4 },
-                { -2, -2, -2, -3, -2, -1, -2, -3, 2, -1, -1, -2, -1, 3, -3, -2, -2, 2, 7, -1, -3, -2, -1, -4 },
-                { 0, -3, -3, -3, -1, -2, -2, -3, -3, 3, 1, -2, 1, -1, -2, -2, 0, -3, -1, 4, -3, -2, -1, -4 },
-                { -2, -1, 3, 4, -3, 0, 1, -1, 0, -3, -4, 0, -3, -3, -2, 0, -1, -4, -3, -3, 4, 1, -1, -4 },
-                { -1, 0, 0, 1, -3, 3, 4, -2, 0, -3, -3, 1, -1, -3, -1, 0, -1, -3, -2, -2, 1, 4, -1, -4 },
-                { 0, -1, -1, -1, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, 0, 0, -2, -1, -1, -1, -1, -1 - 4 },
-                { -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, 1 },
+            { 4, -1, -2, -2, 0, -1, -1, 0, -2, -1, -1, -1, -1, -2, -1, 1, 0, -3, -2, 0, -2, -1, 0, -4 },
+            { -1, 5, 0, -2, -3, 1, 0, -2, 0, -3, -2, 2, -1, -3, -2, -1, -1, -3, -2, -3, -1, 0, -1, -4 },
+            { -2, 0, 6, 1, -3, 0, 0, 0, 1, -3, -3, 0, -2, -3, -2, 1, 0, -4, -2, -3, 3, 0, -1, -4 },
+            { -2, -2, 1, 6, -3, 0, 2, -1, -1, -3, -4, -1, -3, -3, -1, 0, -1, -4, -3, -3, 4, 1, -1, -4 },
+            { 0, -3, -3, -3, 9, -3, -4, -3, -3, -1, -1, -3, -1, -2, -3, -1, -1, -2, -2, -1, -3, -3, -2, -4 },
+            { -1, 1, 0, 0, -3, 5, 2, -2, 0, -3, -2, 1, 0, -3, -1, 0, -1, -2, -1, -2, 0, 3, -1, -4 },
+            { -1, 0, 0, 2, -4, 2, 5, -2, 0, -3, -3, 1, -2, -3, -1, 0, -1, -3, -2, -2, 1, 4, -1, -4 },
+            { 0, -2, 0, -1, -3, -2, -2, 6, -2, -4, -4, -2, -3, -3, -2, 0, -2, -2, -3, -3, -1, -2, -1, -4 },
+            { -2, 0, 1, -1, -3, 0, 0, -2, 8, -3, -3, -1, -2, -1, -2, -1, -2, -2, 2, -3, 0, 0, -1, -4 },
+            { -1, -3, -3, -3, -1, -3, -3, -4, -3, 4, 2, -3, 1, 0, -3, -2, -1, -3, -1, 3, -3, -3, -1, -4 },
+            { -1, -2, -3, -4, -1, -2, -3, -4, -3, 2, 4, -2, 2, 0, -3, -2, -1, -2, -1, 1, -4, -3, -1, -4 },
+            { -1, 2, 0, -1, -3, 1, 1, -2, -1, -3, -2, 5, -1, -3, -1, 0, -1, -3, -2, -2, 0, 1, -1, -4 },
+            { -1, -1, -2, -3, -1, 0, -2, -3, -2, 1, 2, -1, 5, 0, -2, -1, -1, -1, -1, 1, -3, -1, -1, -4 },
+            { -2, -3, -3, -3, -2, -3, -3, -3, -1, 0, 0, -3, 0, 6, -4, -2, -2, 1, 3, -1, -3, -3, -1, -4 },
+            { -1, -2, -2, -1, -3, -1, -1, -2, -2, -3, -3, -1, -2, -4, 7, -1, -1, -4, -3, -2, -2, -1, -2, -4 },
+            { 1, -1, 1, 0, -1, 0, 0, 0, -1, -2, -2, 0, -1, -2, -1, 4, 1, -3, -2, -2, 0, 0, 0, -4 },
+            { 0, -1, 0, -1, -1, -1, -1, -2, -2, -1, -1, -1, -1, -2, -1, 1, 5, -2, -2, 0, -1, -1, 0, -4 },
+            { -3, -3, -4, -4, -2, -2, -3, -2, -2, -3, -2, -3, -1, 1, -4, -3, -2, 11, 2, -3, -4, -3, -2, -4 },
+            { -2, -2, -2, -3, -2, -1, -2, -3, 2, -1, -1, -2, -1, 3, -3, -2, -2, 2, 7, -1, -3, -2, -1, -4 },
+            { 0, -3, -3, -3, -1, -2, -2, -3, -3, 3, 1, -2, 1, -1, -2, -2, 0, -3, -1, 4, -3, -2, -1, -4 },
+            { -2, -1, 3, 4, -3, 0, 1, -1, 0, -3, -4, 0, -3, -3, -2, 0, -1, -4, -3, -3, 4, 1, -1, -4 },
+            { -1, 0, 0, 1, -3, 3, 4, -2, 0, -3, -3, 1, -1, -3, -1, 0, -1, -3, -2, -2, 1, 4, -1, -4 },
+            { 0, -1, -1, -1, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, 0, 0, -2, -1, -1, -1, -1, -1 - 4 },
+            { -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, 1 },
         };
     }
 
