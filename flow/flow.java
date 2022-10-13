@@ -41,6 +41,7 @@ public class flow {
             }
             scanner.close();
 
+            // TODO: Find max cut instead of max flow
             int maxFlow = fordFulkerson(adj, numNodes);
             System.out.println(maxFlow);
             
