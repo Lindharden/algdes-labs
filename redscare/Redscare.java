@@ -1,15 +1,12 @@
 package redscare;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class Redscare {
     public static void main(String[] args) {
 
         File[] files = new File("./redscare/data").listFiles();
-        
         Parser parser = new Parser();
 
         for (File file : files) {
