@@ -26,6 +26,10 @@ public class Graph {
             this.name = name;
             this.red = red;
         }
+
+        public Boolean isRed() {
+            return red;
+        }
     }
 
     /**
@@ -56,5 +60,15 @@ public class Graph {
     /** Set end node of graph */
     public void setEnd(String end) {
         this.end = end;
+    }
+
+    /** Get start node of graph */
+    public Vertex getStart() {
+        return vertices.get(this.start);
+    }
+
+    /** Get end node of graph */
+    public Vertex getEnd() {
+        return vertices.get(this.end);
     }
 }

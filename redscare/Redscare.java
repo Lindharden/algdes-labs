@@ -1,33 +1,21 @@
 package redscare;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Scanner;
-
-import redscare.Alternate;
-import redscare.Some;
-import redscare.Many;
-import redscare.Few;
-import redscare.None;
-import redscare.Graph;
-import redscare.Parser;
+import java.util.List;
 
 public class Redscare {
     public static void main(String[] args) {
 
-        // read relevant files in directory
-        File dir = new File("data");
-        FileFilter filter = new FileFilter() {
-            public boolean accept(File f) {
-                return f.getName().endsWith("txt");
-            };
-        };
-
+        File[] files = new File("./redscare/data").listFiles();
+        
         Parser parser = new Parser();
-        File[] files = dir.listFiles(filter);
-        for (File f : files) {
-            String file = f.getName();
-            System.out.println(file);
+
+        for (File file : files) {
+            System.out.println(file.getName());
+            // ignore element if its not a file, or not a .txt
+            if (!file.isFile() || !file.getName().endsWith(".txt")) continue;
             // for each problem type, parse and create a graph
             IProblem[] problems = {
                     new Alternate(parser.parse(file)),
