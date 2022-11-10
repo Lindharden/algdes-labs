@@ -13,9 +13,9 @@ public class Redscare {
         Parser parser = new Parser();
 
         for (File file : files) {
-            System.out.println(file.getName());
             // ignore element if its not a file, or not a .txt
             if (!file.isFile() || !file.getName().endsWith(".txt")) continue;
+            System.out.println(file.getName());
             // for each problem type, parse and create a graph
             IProblem[] problems = {
                     new Alternate(parser.parse(file)),

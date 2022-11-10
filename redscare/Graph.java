@@ -17,7 +17,9 @@ public class Graph {
 
     public class Vertex {
         String name;
-        Boolean red;
+        boolean red;
+        int lengthTo;
+        boolean visited;
 
         // list of adjacent vertecies (represents edges)
         ArrayList<Vertex> adj = new ArrayList<>();
@@ -38,7 +40,7 @@ public class Graph {
      * red - Whether the vertex is 'red' or not
      */
     public void addVertex(String name, boolean red) {
-        vertices.put(name, new Vertex(name, red));
+        vertices.put(name.trim(), new Vertex(name, red));
     }
 
     /**
@@ -47,19 +49,19 @@ public class Graph {
      * to - The name of the vertex the edge should go to
      */
     public void addEdge(String from, String to) {
-        Vertex fromVertex = vertices.get(from);
-        Vertex toVertex = vertices.get(to);
+        Vertex fromVertex = vertices.get(from.trim());
+        Vertex toVertex = vertices.get(to.trim());
         fromVertex.adj.add(toVertex);
     }
 
     /** Set start node of graph */
     public void setStart(String start) {
-        this.start = start;
+        this.start = start.trim();
     }
 
     /** Set end node of graph */
     public void setEnd(String end) {
-        this.end = end;
+        this.end = end.trim();
     }
 
     /** Get start node of graph */

@@ -56,7 +56,7 @@ public class Parser {
             return graph;
         }
         catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
         return null;
         
