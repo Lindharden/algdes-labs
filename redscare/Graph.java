@@ -73,4 +73,9 @@ public class Graph {
     public Vertex getEnd() {
         return vertices.get(this.end);
     }
+    
+    /** Set all vertices to not visited */
+    public void resetVisited() {
+        vertices.values().forEach(v -> v.visited = false);
+    }
 }

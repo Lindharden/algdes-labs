@@ -1,5 +1,6 @@
 package redscare;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import redscare.Graph.Vertex;
@@ -12,6 +13,17 @@ public class None extends BaseProblem {
 
 	@Override
 	public void solve() {
+		// check whether there is an edge from source to target
+		boolean edgeST = false;
+		for (Vertex v : this.g.getStart().adj) {
+			if (v.name == this.g.end) edgeST = true; break;
+		}
+		if (edgeST) {
+			this.g.getEnd().lengthTo = 1;
+			return;
+		}
+		// check whether either source or target is red, return if so
+		if (this.g.getStart().red || this.g.getEnd().red) return;
 		BFS();
 	}
 

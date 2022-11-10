@@ -10,21 +10,23 @@ public class Redscare {
         Parser parser = new Parser();
 
         for (File file : files) {
-            // ignore element if its not a file, or not a .txt
+            // ignore element if it's not a file, or not a .txt
+            //if (!file.isFile() || !file.getName().endsWith("G-ex.txt")) continue;
             if (!file.isFile() || !file.getName().endsWith(".txt")) continue;
             System.out.println(file.getName());
             // for each problem type, parse and create a graph
             IProblem[] problems = {
-                    new Alternate(parser.parse(file)),
+                    new None(parser.parse(file)), 
                     new Some(parser.parse(file)),
                     new Many(parser.parse(file)),
                     new Few(parser.parse(file)),
-                    new None(parser.parse(file)) };
+                    new Alternate(parser.parse(file)) };
 
             Arrays.stream(problems).forEach(i -> {
                 i.solve();
                 i.print();
             });
+            System.out.println();
         }
     }
 }
