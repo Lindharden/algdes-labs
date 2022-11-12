@@ -9,6 +9,11 @@ public class Many extends BaseProblem {
 
 	@Override
 	public void solve() {
+		// only solve for DAG
+		if (this.g.isDAG()) {
+			// GOGO
+		}
+
 		// TODO Auto-generated method stub
 		
 	}

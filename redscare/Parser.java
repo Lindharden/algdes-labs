@@ -45,14 +45,19 @@ public class Parser {
                     // edge in both ways
                     graph.addEdge(edge[0], edge[1]);
                     graph.addEdge(edge[1], edge[0]);
+                    graph.setDirected(false); // graph is not directed
                 } else if (l.contains("->")) {
                     // parse directed edge
                     String[] edge = l.split(" -> ");
                     // only one edge
                     graph.addEdge(edge[0], edge[1]);
+                    graph.setDirected(true); // graph is directed
                 }
             }
             sc.close();
+
+            // if graph is directed, find whether graph is cyclic or not
+            if (graph.isDirected()) graph.setCyclic();
             return graph;
         }
         catch (Exception e) {

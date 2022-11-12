@@ -2,6 +2,7 @@ package redscare;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /* Directed Graph */
 public class Graph {
@@ -10,6 +11,9 @@ public class Graph {
     HashMap<String, Vertex> vertices;
     String start; // start node
     String end; // end node
+
+    private boolean isDirected;
+    private boolean isCyclic;
 
     public Graph() {
         vertices = new HashMap<String, Vertex>();
@@ -77,5 +81,73 @@ public class Graph {
     /** Set all vertices to not visited */
     public void resetVisited() {
         vertices.values().forEach(v -> v.visited = false);
+    }
+
+    /** Get whether graph is cyclic or not */
+    public boolean isCyclic() {
+        return isCyclic;
+    }
+
+    /** Set whether graph is cyclic or not */
+    public void setCyclic() {
+        this.isCyclic = isCyclicGraph();
+        resetVisited();
+    }
+
+    /** Get whether graph is directed or not */
+    public boolean isDirected() {
+        return isDirected;
+    }
+
+    /** Set whether graph is directed or not */
+    public void setDirected(boolean isDirected) {
+        this.isDirected = isDirected;
+    }
+
+    /** Get whether graph is DAG or not */
+    public boolean isDAG() {
+        return isDirected && !isCyclic;
+    }
+
+    /** Find whether graph is cyclic or not */
+    private boolean isCyclicGraph() {
+         
+        // Mark all the vertices as not visited and
+        // not part of recursion stack
+        HashMap<String, Boolean> vertRec = new HashMap<>();
+        for (String vertName : vertices.keySet()) {
+            vertRec.put(vertName, false);
+        }
+
+        // Call the recursive helper function to
+        // detect cycle in different DFS trees
+        for (Vertex v : vertices.values()) {
+            if (isCyclicUtil(v, vertRec)) return true;
+        }
+ 
+        return false;
+    }
+
+    private boolean isCyclicUtil(Vertex v, HashMap<String, Boolean> vertRec) {
+        // Mark the current node as visited and
+        // part of recursion stack
+        if (vertRec.get(v.name))
+            return true;
+ 
+        if (v.visited)
+            return false;
+             
+        v.visited = true;
+ 
+        vertRec.put(v.name, true);
+        List<Vertex> children = v.adj;
+         
+        for (Vertex c: children)
+            if (isCyclicUtil(c, vertRec))
+                return true;
+                 
+        vertRec.put(v.name, false);
+ 
+        return false;
     }
 }
