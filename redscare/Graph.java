@@ -20,10 +20,10 @@ public class Graph {
     }
 
     public class Vertex {
-        String name;
-        boolean red;
-        int lengthTo;
-        boolean visited;
+        private String name;
+        private boolean red;
+        private int lengthTo;
+        private boolean visited;
 
         // list of adjacent vertecies (represents edges)
         ArrayList<Vertex> adj = new ArrayList<>();
@@ -36,6 +36,27 @@ public class Graph {
         public Boolean isRed() {
             return red;
         }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getLengthTo() {
+            return lengthTo;
+        }
+
+        public void setLengthTo(int lengthTo) {
+            this.lengthTo = lengthTo;
+        }
+
+        public boolean isVisited() {
+            return visited;
+        }
+
+        public void setVisited(boolean visited) {
+            this.visited = visited;
+        }
+
     }
 
     /**

@@ -17,7 +17,7 @@ public class Some extends BaseProblem {
 
 		// fetch all red vertices
 		reds = this.g.vertices.values().stream()
-				.filter(v -> v.red)
+				.filter(v -> v.isRed())
 				.collect(Collectors.toList());
 	}
 

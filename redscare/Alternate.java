@@ -17,7 +17,7 @@ public class Alternate extends BaseProblem {
 
 	@Override
 	public void print() {
-		int lengthToEnd = this.g.getEnd().lengthTo;
+		int lengthToEnd = this.g.getEnd().getLengthTo();
 		// if length to end is 0, then we didn't find a path to the end with alternating colors
 		// print 'false' if there was no path
 		System.out.println("Alternate result = " + (lengthToEnd > 0 ? true : false));
@@ -31,7 +31,7 @@ public class Alternate extends BaseProblem {
         LinkedList<Vertex> queue = new LinkedList<Vertex>();
  
         // Mark the current node as visited and enqueue it
-        start.visited = true;
+        start.setVisited(true);
         queue.add(start);
  
         while (queue.size() != 0) {
@@ -42,10 +42,10 @@ public class Alternate extends BaseProblem {
             // If an adjacent vertex has not been visited, and is the opposite color of the current one, 
 			// then mark it as visited and enqueue it
 			for (Vertex v : vertex.adj) {
-				if (!v.visited && vertex.red != v.red) {
-					v.visited = true;
+				if (!v.isVisited() && vertex.isRed() != v.isRed()) {
+					v.setVisited(true);
 					// length to adjacent vertex is length to current vertex + 1
-					v.lengthTo = vertex.lengthTo + 1;
+					v.setLengthTo(vertex.getLengthTo() + 1);
 					queue.add(v);
 				}
 			}
