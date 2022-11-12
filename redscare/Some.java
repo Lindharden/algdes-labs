@@ -23,53 +23,68 @@ public class Some extends BaseProblem {
 
 	@Override
 	public void solve() {
-		for (Vertex v : reds) {
-			// for each red vertex, test whether there is a path
-			// from start to the red vertex, and whether there
-			// is a path from the red vertex to the end.
-			if (BFS(this.g.getStart(), v) && BFS(v, this.g.getEnd())) {
-				// if there is such path mark that we have found a solution and quit
-				targetFound = true;
-				return;
-			}
-			this.g.resetVisited();
-		}
+		// solve only for undirected, using network flow
+		if (this.g.isDirected()) return;
+
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void print() {
-		// print 'false' if there was no path with at least one red vertex, 'true'
-		// otherwise
-		System.out.println("Some result = " + targetFound);
+		// TODO Auto-generated method stub
+		
 	}
 
-	private boolean BFS(Vertex start, Vertex target) {
-		// Create a queue for BFS
-		LinkedList<Vertex> queue = new LinkedList<Vertex>();
+	// @Override
+	// public void solve() {
+	// 	for (Vertex v : reds) {
+	// 		// for each red vertex, test whether there is a path
+	// 		// from start to the red vertex, and whether there
+	// 		// is a path from the red vertex to the end.
+	// 		if (BFS(this.g.getStart(), v) && BFS(v, this.g.getEnd())) {
+	// 			// if there is such path mark that we have found a solution and quit
+	// 			targetFound = true;
+	// 			return;
+	// 		}
+	// 		this.g.resetVisited();
+	// 	}
+	// }
 
-		// Mark the current node as visited and enqueue it
-		start.visited = true;
-		queue.add(start);
+	// @Override
+	// public void print() {
+	// 	// print 'false' if there was no path with at least one red vertex, 'true'
+	// 	// otherwise
+	// 	System.out.println("Some result = " + targetFound);
+	// }
 
-		while (queue.size() != 0) {
-			// Dequeue a vertex from queue and print it
-			Vertex vertex = queue.poll();
+	// private boolean BFS(Vertex start, Vertex target) {
+	// 	// Create a queue for BFS
+	// 	LinkedList<Vertex> queue = new LinkedList<Vertex>();
 
-			// if the current vertex is the target return true
-			if (vertex.name == target.name) {
-				return true;
-			}
+	// 	// Mark the current node as visited and enqueue it
+	// 	start.visited = true;
+	// 	queue.add(start);
 
-			// Get all adjacent vertices of the dequeued vertex s
-			// If an adjacent vertex has not been visited, then mark it as visited and
-			// enqueue it
-			for (Vertex v : vertex.adj) {
-				if (!v.visited) {
-					v.visited = true;
-					queue.add(v);
-				}
-			}
-		}
-		return false;
-	}
+	// 	while (queue.size() != 0) {
+	// 		// Dequeue a vertex from queue and print it
+	// 		Vertex vertex = queue.poll();
+
+	// 		// if the current vertex is the target return true
+	// 		if (vertex.name == target.name) {
+	// 			return true;
+	// 		}
+
+	// 		// Get all adjacent vertices of the dequeued vertex s
+	// 		// If an adjacent vertex has not been visited, then mark it as visited and
+	// 		// enqueue it
+	// 		for (Vertex v : vertex.adj) {
+	// 			if (!v.visited) {
+	// 				v.visited = true;
+	// 				queue.add(v);
+	// 			}
+	// 		}
+	// 	}
+	// 	return false;
+	// }
 }
