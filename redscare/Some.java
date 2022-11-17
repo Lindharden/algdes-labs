@@ -26,11 +26,11 @@ public class Some extends BaseProblem {
 
 	@Override
 	public void solve() {
-		isPath(this.g.getStart());
-		if ((this.g.getEnd().isRed() || this.g.getStart().isRed()) && isPath) {
-			result = true;
-			return;
-		}
+		// isPath(this.g.getStart());
+		// if ((this.g.getEnd().isRed() || this.g.getStart().isRed()) && isPath) {
+		// 	result = true;
+		// 	return;
+		// }
 		
 		numVertices = this.g.vertices.size() + 2;
 		// make room for new source and sink
@@ -54,12 +54,12 @@ public class Some extends BaseProblem {
 		}
 	}
 
-	private void isPath(Vertex start) {
-		for (Vertex v : start.adj) {
-			if (v == this.g.getEnd()) isPath = true;
-			isPath(v);
-		}
-	}
+	// private void isPath(Vertex start) {
+	// 	for (Vertex v : start.adj) {
+	// 		if (v == this.g.getEnd()) isPath = true;
+	// 		isPath(v);
+	// 	}
+	// }
 
 	@Override
 	public void print() {
