@@ -33,7 +33,7 @@ public class Parser {
             for (int i = 0; i < n; i++) {
                 line = sc.nextLine().split(" ");
                 Boolean red = line.length > 1 ? true : false;
-                graph.addVertex(line[0], red);
+                graph.addVertex(line[0], red, i);
             }
 
             // parse and add edges

@@ -20,6 +20,7 @@ public class Graph {
     }
 
     public class Vertex {
+        private int id;
         private String name;
         private boolean red;
         private int lengthTo;
@@ -28,9 +29,14 @@ public class Graph {
         // list of adjacent vertecies (represents edges)
         ArrayList<Vertex> adj = new ArrayList<>();
 
-        public Vertex(String name, Boolean red) {
+        public Vertex(String name, Boolean red, int id) {
             this.name = name;
             this.red = red;
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
         }
 
         public Boolean isRed() {
@@ -64,8 +70,8 @@ public class Graph {
      * name - Name of vertex
      * red - Whether the vertex is 'red' or not
      */
-    public void addVertex(String name, boolean red) {
-        vertices.put(name.trim(), new Vertex(name, red));
+    public void addVertex(String name, boolean red, int id) {
+        vertices.put(name.trim(), new Vertex(name, red, id));
     }
 
     /**
@@ -170,5 +176,14 @@ public class Graph {
         vertRec.put(v.name, false);
  
         return false;
+    }
+
+    /*
+     * Returns list of all red vertices
+     */
+    public ArrayList<Vertex> getRedVertices() {
+        ArrayList<Vertex> values = new ArrayList<>(this.vertices.values());
+        values.removeIf(v -> !v.isRed());
+        return values;
     }
 }

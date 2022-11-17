@@ -12,7 +12,7 @@ public class Redscare {
         for (File file : files) {
             // ignore element if it's not a file, or not a .txt
             //if (!file.isFile() || !file.getName().endsWith("G-ex.txt")) continue;
-            if (!file.isFile() || !file.getName().endsWith(".txt")) continue;
+            if (!file.isFile() || !file.getName().endsWith("G-ex.txt")) continue;
             System.out.println(file.getName());
             // for each problem type, parse and create a graph
             IProblem[] problems = {
