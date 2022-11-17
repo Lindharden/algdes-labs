@@ -12,7 +12,7 @@ public class Redscare {
         for (File file : files) {
             // ignore element if it's not a file, or not a .txt
             //if (!file.isFile() || !file.getName().endsWith("G-ex.txt")) continue;
-            if (!file.isFile() || !file.getName().endsWith("G-ex.txt")) continue;
+            if (!file.isFile() || !file.getName().endsWith("G_ex2_dag.txt")) continue;
             System.out.println(file.getName());
             // for each problem type, parse and create a graph
             IProblem[] problems = {
@@ -23,8 +23,11 @@ public class Redscare {
                     new Alternate(parser.parse(file)) };
 
             Arrays.stream(problems).forEach(i -> {
+                long startTime = System.nanoTime();
                 i.solve();
+                long endTime = System.nanoTime();
                 i.print();
+                System.out.println("Duration: " + (endTime-startTime)/1000000);
             });
             System.out.println();
         }

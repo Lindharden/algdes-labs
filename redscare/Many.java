@@ -59,7 +59,7 @@ public class Many extends BaseProblem {
 		}
 	}
 
-	// if the vertex is red the weight is 1, else its 0
+	// If the vertex is red the weight is 1, else its 0
 	private int vertexWeight(Vertex v) {
 		return v.isRed() ? 1 : 0;
 	}

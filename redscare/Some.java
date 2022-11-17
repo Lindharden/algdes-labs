@@ -15,6 +15,7 @@ public class Some extends BaseProblem {
 	public int newSource;
 	public int newSink;
 	public boolean result;
+	public boolean isPath;
 
 	// solution inspired by UsagiBo on GitHub:
 	// 	https://github.com/UsagiBo/Red-Scare/blob/master/src/Some.java
@@ -25,7 +26,11 @@ public class Some extends BaseProblem {
 
 	@Override
 	public void solve() {
-		// solve only for undirected, using network flow
+		isPath(this.g.getStart());
+		if ((this.g.getEnd().isRed() || this.g.getStart().isRed()) && isPath) {
+			result = true;
+			return;
+		}
 		
 		numVertices = this.g.vertices.size() + 2;
 		// make room for new source and sink
@@ -46,6 +51,13 @@ public class Some extends BaseProblem {
 			// reset the edges made for the specific red vertex
 			g[newSource][v.getId()] = 0; // 0 means the edge doesn't exist
 			g[v.getId()][newSink] = 0;
+		}
+	}
+
+	private void isPath(Vertex start) {
+		for (Vertex v : start.adj) {
+			if (v == this.g.getEnd()) isPath = true;
+			isPath(v);
 		}
 	}
 
