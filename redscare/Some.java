@@ -7,18 +7,14 @@ import java.util.stream.Collectors;
 import redscare.Graph.Vertex;
 
 public class Some extends BaseProblem {
-
-	// store all red vertices
-	// List<Vertex> reds;
-	// boolean targetFound;
 	public int numVertices;
+	public int originalNumVertices;
 	public int newSource;
 	public int newSink;
 	public boolean result;
-	public boolean isPath;
 
 	// solution inspired by UsagiBo on GitHub:
-	// 	https://github.com/UsagiBo/Red-Scare/blob/master/src/Some.java
+	// https://github.com/UsagiBo/Red-Scare/blob/master/src/Some.java
 
 	public Some(Graph g) {
 		super(g);
@@ -26,58 +22,70 @@ public class Some extends BaseProblem {
 
 	@Override
 	public void solve() {
-		// isPath(this.g.getStart());
-		// if ((this.g.getEnd().isRed() || this.g.getStart().isRed()) && isPath) {
-		// 	result = true;
-		// 	return;
-		// }
-		
-		numVertices = this.g.vertices.size() + 2;
+
+		// don't solve if the graph is not undirected
+		if (this.g.isDirected())
+			return;
+
+		originalNumVertices = this.g.vertices.size();
+		numVertices = originalNumVertices * 2 + 2;
 		// make room for new source and sink
 		newSource = numVertices - 2;
 		newSink = numVertices - 1;
+
 		int[][] g = convertGraph();
 
 		for (Vertex v : this.g.getRedVertices()) {
-			// add new edge between new source and a red
-			g[newSource][v.getId()] = 1;
+			// set the internal capacity of the given red vertex to 2
+			g[v.getId()][v.getId() + originalNumVertices] = 2;
+
 			// add new edge between red and new sink
-			g[v.getId()][newSink] = 2;
+			g[v.getId() + originalNumVertices][newSink] = 2;
+			
 			// check whether there is a max flow of 2, between new source and new sink
 			if (fordFulkerson(g, newSource, newSink) == 2) {
 				result = true;
 				return;
 			}
-			// reset the edges made for the specific red vertex
-			g[newSource][v.getId()] = 0; // 0 means the edge doesn't exist
-			g[v.getId()][newSink] = 0;
+			// reset the edge from the red vertex to the new sink
+			// and reset internal capacity in the red node.
+			g[v.getId() + originalNumVertices][newSink] = 0;
+			g[v.getId()][v.getId() + originalNumVertices] = 1;
 		}
 	}
 
-	// private void isPath(Vertex start) {
-	// 	for (Vertex v : start.adj) {
-	// 		if (v == this.g.getEnd()) isPath = true;
-	// 		isPath(v);
-	// 	}
-	// }
-
 	@Override
 	public void print() {
-		System.out.println("Some result = " + result);
-
+		if (this.g.isDirected()) {
+			System.out.println("Some result = Can only solve of undirected graphs");
+		} else {
+			System.out.println("Some result = " + result);
+		}
 	}
 
 	public int[][] convertGraph() {
 		int[][] newG = new int[numVertices][numVertices];
 
+		// for each vertex, split that vertex into two, and connect 
+		// then with a capacity of 1. This ensures that each vertex 
+		// (from the original graph) can only be visited once.
 		for (Vertex f : this.g.vertices.values()) {
+			// the edge between the original vertex and its new mate has capacity 1
+			newG[f.getId()][f.getId() + originalNumVertices] = 1;
 			for (Vertex t : f.adj) {
-				newG[f.getId()][t.getId()] = 1;
+				// move the edges that where previously connected with t, to the new mate of f.
+				newG[f.getId() + originalNumVertices][t.getId()] = 1;
 			}
 		}
 
+		// Connect the new source with the original source and the original sink.
+		// Each will have a capacity of 1, to ensure that the flow will go both ways.
+
+		// Since the edge between the red and new sink has capacity 2, we ensure that
+		// we find two disjoint paths from the original source, to a red, and to the
+		// original sink.
 		newG[newSource][this.g.getStart().getId()] = 1;
-		newG[this.g.getEnd().getId()][newSource] = 1;
+		newG[newSource][this.g.getEnd().getId()] = 1;
 
 		return newG;
 	}
@@ -174,56 +182,4 @@ public class Some extends BaseProblem {
 		// Return the overall flow
 		return max_flow;
 	}
-
-	// @Override
-	// public void solve() {
-	// for (Vertex v : reds) {
-	// // for each red vertex, test whether there is a path
-	// // from start to the red vertex, and whether there
-	// // is a path from the red vertex to the end.
-	// if (BFS(this.g.getStart(), v) && BFS(v, this.g.getEnd())) {
-	// // if there is such path mark that we have found a solution and quit
-	// targetFound = true;
-	// return;
-	// }
-	// this.g.resetVisited();
-	// }
-	// }
-
-	// @Override
-	// public void print() {
-	// // print 'false' if there was no path with at least one red vertex, 'true'
-	// // otherwise
-	// System.out.println("Some result = " + targetFound);
-	// }
-
-	// private boolean BFS(Vertex start, Vertex target) {
-	// // Create a queue for BFS
-	// LinkedList<Vertex> queue = new LinkedList<Vertex>();
-
-	// // Mark the current node as visited and enqueue it
-	// start.visited = true;
-	// queue.add(start);
-
-	// while (queue.size() != 0) {
-	// // Dequeue a vertex from queue and print it
-	// Vertex vertex = queue.poll();
-
-	// // if the current vertex is the target return true
-	// if (vertex.name == target.name) {
-	// return true;
-	// }
-
-	// // Get all adjacent vertices of the dequeued vertex s
-	// // If an adjacent vertex has not been visited, then mark it as visited and
-	// // enqueue it
-	// for (Vertex v : vertex.adj) {
-	// if (!v.visited) {
-	// v.visited = true;
-	// queue.add(v);
-	// }
-	// }
-	// }
-	// return false;
-	// }
 }
