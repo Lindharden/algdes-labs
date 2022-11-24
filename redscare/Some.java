@@ -1,8 +1,6 @@
 package redscare;
 
 import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import redscare.Graph.Vertex;
 
@@ -13,9 +11,6 @@ public class Some extends BaseProblem {
 	public int newSink;
 	public boolean result;
 
-	// solution inspired by UsagiBo on GitHub:
-	// https://github.com/UsagiBo/Red-Scare/blob/master/src/Some.java
-
 	public Some(Graph g) {
 		super(g);
 	}
@@ -23,7 +18,18 @@ public class Some extends BaseProblem {
 	@Override
 	public void solve() {
 
+		// if it's a DAG, use Many to solve
+		if (this.g.isDAG()) {
+			Many m = new Many(g);
+			m.solve();
+			int numReds = m.getRedsOnPath();
+			// if many finds a path using 1 or more reds, Some is true
+			result = numReds > 0;
+			return;
+		}
+
 		// don't solve if the graph is not undirected
+		// directed cyclic more specifically
 		if (this.g.isDirected())
 			return;
 
@@ -56,8 +62,8 @@ public class Some extends BaseProblem {
 
 	@Override
 	public void print() {
-		if (this.g.isDirected()) {
-			System.out.println("Some result = Can only solve of undirected graphs");
+		if (this.g.isDirected() && this.g.isCyclic()) {
+			System.out.println("Some result = Can only solve for undirected graphs (or DAG's)");
 		} else {
 			System.out.println("Some result = " + result);
 		}
@@ -90,15 +96,14 @@ public class Some extends BaseProblem {
 		return newG;
 	}
 
+	// from: https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/ 
 	public boolean bfs(int rGraph[][], int s, int t, int parent[]) {
-		// Create a visited array and mark all vertices as
-		// not visited
+		// Create a visited array and mark all vertices as not visited
 		boolean visited[] = new boolean[numVertices];
 		for (int i = 0; i < numVertices; ++i)
 			visited[i] = false;
 
-		// Create a queue, enqueue source vertex and mark
-		// source vertex as visited
+		// Create a queue, enqueue source vertex and mark source vertex as visited
 		LinkedList<Integer> queue = new LinkedList<Integer>();
 		queue.add(s);
 		visited[s] = true;
@@ -126,13 +131,12 @@ public class Some extends BaseProblem {
 			}
 		}
 
-		// We didn't reach sink in BFS starting from source,
-		// so return false
+		// We didn't reach sink in BFS starting from source, so return false
 		return false;
 	}
 
-	// Returns the maximum flow from s to t in the given
-	// graph
+	// Returns the maximum flow from s to t in the given graph
+	// from: https://www.geeksforgeeks.org/ford-fulkerson-algorithm-for-maximum-flow-problem/ 
 	public int fordFulkerson(int graph[][], int s, int t) {
 		int u, v;
 
@@ -142,8 +146,7 @@ public class Some extends BaseProblem {
 
 		// Residual graph where rGraph[i][j] indicates
 		// residual capacity of edge from i to j (if there
-		// is an edge. If rGraph[i][j] is 0, then there is
-		// not)
+		// is an edge. If rGraph[i][j] is 0, then there is not)
 		int rGraph[][] = new int[numVertices][numVertices];
 
 		for (u = 0; u < numVertices; u++)
@@ -155,8 +158,7 @@ public class Some extends BaseProblem {
 
 		int max_flow = 0; // There is no flow initially
 
-		// Augment the flow while there is path from source
-		// to sink
+		// Augment the flow while there is path from source to sink
 		while (bfs(rGraph, s, t, parent)) {
 			// Find minimum residual capacity of the edhes
 			// along the path filled by BFS. Or we can say

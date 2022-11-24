@@ -92,8 +92,15 @@ public class Many extends BaseProblem {
 			System.out.println("Many result = Can only solve for DAG");
 			return;
 		}
-		int maxReds = dist.get(this.g.getEnd().getName());
+		int maxReds = getRedsOnPath();
 		System.out.println("Many result = " + (maxReds == Integer.MIN_VALUE ? -1 : maxReds));
+	}
+
+	public int getRedsOnPath() {
+		if (!this.g.isDAG()) {
+			return 0;
+		}
+		return dist.get(this.g.getEnd().getName());
 	}
 
 }
