@@ -1,6 +1,8 @@
 package redscare;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import redscare.Graph.Vertex;
 
@@ -39,15 +41,16 @@ public class Some extends BaseProblem {
 		newSource = numVertices - 2;
 		newSink = numVertices - 1;
 
-		int[][] g = convertGraph();
+		Map<Integer, Map<Integer, Integer>> g;
 
 		for (Vertex v : this.g.getRedVertices()) {
+			g = convertGraph();
 			// set the internal capacity of the given red vertex to 2
-			g[v.getId()][v.getId() + originalNumVertices] = 2;
+			g.get(v.getId()).put(v.getId() + originalNumVertices, 2);
 
 			// add new edge between red and new sink
-			g[v.getId() + originalNumVertices][newSink] = 2;
-			
+			g.get(v.getId() + originalNumVertices).put(newSink, 2);
+
 			// check whether there is a max flow of 2, between new source and new sink
 			if (fordFulkerson(g, newSource, newSink) == 2) {
 				result = true;
@@ -55,8 +58,8 @@ public class Some extends BaseProblem {
 			}
 			// reset the edge from the red vertex to the new sink
 			// and reset internal capacity in the red node.
-			g[v.getId() + originalNumVertices][newSink] = 0;
-			g[v.getId()][v.getId() + originalNumVertices] = 1;
+			g.get(v.getId() + originalNumVertices).remove(newSink);
+			g.get(v.getId()).put(v.getId() + originalNumVertices, 1);
 		}
 	}
 
@@ -69,18 +72,24 @@ public class Some extends BaseProblem {
 		}
 	}
 
-	public int[][] convertGraph() {
-		int[][] newG = new int[numVertices][numVertices];
+	public Map<Integer, Map<Integer, Integer>> convertGraph() {
+		Map<Integer, Map<Integer, Integer>> newG = new HashMap<>();
 
-		// for each vertex, split that vertex into two, and connect 
-		// then with a capacity of 1. This ensures that each vertex 
+		// for each vertex, split that vertex into two, and connect
+		// then with a capacity of 1. This ensures that each vertex
 		// (from the original graph) can only be visited once.
 		for (Vertex f : this.g.vertices.values()) {
 			// the edge between the original vertex and its new mate has capacity 1
-			newG[f.getId()][f.getId() + originalNumVertices] = 1;
+			newG.put(f.getId(), new HashMap<Integer, Integer>() {
+				{
+					put(f.getId() + originalNumVertices, 1);
+				}
+			});
+			newG.put(f.getId() + originalNumVertices, new HashMap<>());
+			Map<Integer, Integer> m = newG.get(f.getId() + originalNumVertices);
 			for (Vertex t : f.adj) {
 				// move the edges that where previously connected with t, to the new mate of f.
-				newG[f.getId() + originalNumVertices][t.getId()] = 1;
+				m.put(t.getId(), 1);
 			}
 		}
 
@@ -90,14 +99,25 @@ public class Some extends BaseProblem {
 		// Since the edge between the red and new sink has capacity 2, we ensure that
 		// we find two disjoint paths from the original source, to a red, and to the
 		// original sink.
-		newG[newSource][this.g.getStart().getId()] = 1;
-		newG[newSource][this.g.getEnd().getId()] = 1;
+		int startId = this.g.getStart().getId();
+		int endId = this.g.getEnd().getId();
+		newG.put(newSource, new HashMap<Integer, Integer>() {
+			{
+				put(startId, 1);
+			}
+		});
+
+		newG.put(newSource, new HashMap<Integer, Integer>() {
+			{
+				put(endId, 1);
+			}
+		});
 
 		return newG;
 	}
 
-	// from: https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/ 
-	public boolean bfs(int rGraph[][], int s, int t, int parent[]) {
+	// from: https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/
+	public boolean bfs(Map<Integer, Map<Integer, Integer>> rGraph, int s, int t, int parent[]) {
 		// Create a visited array and mark all vertices as not visited
 		boolean visited[] = new boolean[numVertices];
 		for (int i = 0; i < numVertices; ++i)
@@ -115,7 +135,7 @@ public class Some extends BaseProblem {
 
 			for (int v = 0; v < numVertices; v++) {
 				if (visited[v] == false
-						&& rGraph[u][v] > 0) {
+						&& isEdge(u, v, rGraph)) {
 					// If we find a connection to the sink
 					// node, then there is no point in BFS
 					// anymore We just have to set its parent
@@ -135,9 +155,17 @@ public class Some extends BaseProblem {
 		return false;
 	}
 
+	public boolean isEdge(int from, int to, Map<Integer, Map<Integer, Integer>> graph) {
+		// if none of the edges exist, return false
+		if (!graph.containsKey(from)) return false;
+		if (!graph.get(from).containsKey(to)) return false;
+		return graph.get(from).get(to) > 0; // return whether the edge is used
+	}
+
 	// Returns the maximum flow from s to t in the given graph
-	// from: https://www.geeksforgeeks.org/ford-fulkerson-algorithm-for-maximum-flow-problem/ 
-	public int fordFulkerson(int graph[][], int s, int t) {
+	// from:
+	// https://www.geeksforgeeks.org/ford-fulkerson-algorithm-for-maximum-flow-problem/
+	public int fordFulkerson(Map<Integer, Map<Integer, Integer>> rGraph, int s, int t) {
 		int u, v;
 
 		// Create a residual graph and fill the residual
@@ -147,11 +175,6 @@ public class Some extends BaseProblem {
 		// Residual graph where rGraph[i][j] indicates
 		// residual capacity of edge from i to j (if there
 		// is an edge. If rGraph[i][j] is 0, then there is not)
-		int rGraph[][] = new int[numVertices][numVertices];
-
-		for (u = 0; u < numVertices; u++)
-			for (v = 0; v < numVertices; v++)
-				rGraph[u][v] = graph[u][v];
 
 		// This array is filled by BFS and to store path
 		int parent[] = new int[numVertices];
@@ -166,15 +189,15 @@ public class Some extends BaseProblem {
 			int path_flow = Integer.MAX_VALUE;
 			for (v = t; v != s; v = parent[v]) {
 				u = parent[v];
-				path_flow = Math.min(path_flow, rGraph[u][v]);
+				path_flow = Math.min(path_flow, rGraph.get(u).get(v));
 			}
 
 			// update residual capacities of the edges and
 			// reverse edges along the path
 			for (v = t; v != s; v = parent[v]) {
 				u = parent[v];
-				rGraph[u][v] -= path_flow;
-				rGraph[v][u] += path_flow;
+				rGraph.get(u).put(v, rGraph.get(u).get(v) - path_flow);
+				rGraph.get(v).put(u, rGraph.get(v).get(u) + path_flow);
 			}
 
 			// Add path flow to overall flow
