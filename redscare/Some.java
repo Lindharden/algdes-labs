@@ -50,6 +50,7 @@ public class Some extends BaseProblem {
 
 			// add new edge between red and new sink
 			g.get(v.getId() + originalNumVertices).put(newSink, 2);
+			g.get(newSink).put(v.getId(), 2); // add reverse edge from newSink
 
 			// check whether there is a max flow of 2, between new source and new sink
 			if (fordFulkerson(g, newSource, newSink) == 2) {
@@ -59,6 +60,7 @@ public class Some extends BaseProblem {
 			// reset the edge from the red vertex to the new sink
 			// and reset internal capacity in the red node.
 			g.get(v.getId() + originalNumVertices).remove(newSink);
+			g.get(newSink).remove(v.getId()); // remove reverse edge from newSink
 			g.get(v.getId()).put(v.getId() + originalNumVertices, 1);
 		}
 	}
@@ -91,7 +93,10 @@ public class Some extends BaseProblem {
 				// move the edges that where previously connected with t, to the new mate of f.
 				m.put(t.getId(), 1);
 			}
+			m.put(f.getId(), 1); // put edge back to previous (input) vertex
 		}
+
+		newG.put(newSink, new HashMap<>()); // initialize sink
 
 		// Connect the new source with the original source and the original sink.
 		// Each will have a capacity of 1, to ensure that the flow will go both ways.
@@ -101,17 +106,15 @@ public class Some extends BaseProblem {
 		// original sink.
 		int startId = this.g.getStart().getId();
 		int endId = this.g.getEnd().getId();
-		newG.put(newSource, new HashMap<Integer, Integer>() {
-			{
-				put(startId, 1);
-			}
-		});
 
-		newG.put(newSource, new HashMap<Integer, Integer>() {
-			{
-				put(endId, 1);
-			}
-		});
+		Map<Integer, Integer> newSourceEdges = new HashMap<Integer, Integer>();
+		newSourceEdges.put(startId, 1);
+		newSourceEdges.put(endId, 1);
+		newG.put(newSource, newSourceEdges);
+
+		// put reverse edges as well
+		newG.get(startId + originalNumVertices).put(newSource, 1);
+		newG.get(endId + originalNumVertices).put(newSource, 1);
 
 		return newG;
 	}
@@ -157,8 +160,10 @@ public class Some extends BaseProblem {
 
 	public boolean isEdge(int from, int to, Map<Integer, Map<Integer, Integer>> graph) {
 		// if none of the edges exist, return false
-		if (!graph.containsKey(from)) return false;
-		if (!graph.get(from).containsKey(to)) return false;
+		if (!graph.containsKey(from))
+			return false;
+		if (!graph.get(from).containsKey(to))
+			return false;
 		return graph.get(from).get(to) > 0; // return whether the edge is used
 	}
 
@@ -192,12 +197,30 @@ public class Some extends BaseProblem {
 				path_flow = Math.min(path_flow, rGraph.get(u).get(v));
 			}
 
+			int parentOut = t; // store previous vertex's output
+
 			// update residual capacities of the edges and
 			// reverse edges along the path
 			for (v = t; v != s; v = parent[v]) {
 				u = parent[v];
-				rGraph.get(u).put(v, rGraph.get(u).get(v) - path_flow);
-				rGraph.get(v).put(u, rGraph.get(v).get(u) + path_flow);
+				rGraph.get(u).put(v, rGraph.get(u).get(v) - path_flow); // recrease capacity
+				if (v == newSink) {
+					// increase flow from sink to next input
+					rGraph.get(newSink).put(parent[u], rGraph.get(newSink).get(parent[u]) + path_flow);
+				} else {
+					if (u < originalNumVertices) {
+						// increase flow internally in vertex
+						rGraph.get(v).put(u, rGraph.get(v).get(u) + path_flow);
+						parentOut = v; // store the output of the vertex
+					} else if (u == newSource) {
+						// increase flow from newSource
+						rGraph.get(parentOut).put(u, rGraph.get(parentOut).get(u) + path_flow);
+					} else {
+						// increase flow from previous output, to current input
+						rGraph.get(parentOut).put(parent[u], rGraph.get(parentOut).get(parent[u]) + path_flow);
+					}
+				}
+
 			}
 
 			// Add path flow to overall flow
